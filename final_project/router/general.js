@@ -3,6 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 
 
@@ -23,41 +24,58 @@ public_users.post("/register", (req,res) => {
   return res.status(404).json({message: "Unable to register user."});
 });
 
+async function task10(req, res){
+  let response = await JSON.stringify(books,null,4);
+    if (response.err) { console.log('error');}
+    else { res.send(response);}
+}
+
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  res.send(JSON.stringify(books,null,4));
-});
+public_users.get('/', task10);
+
+async function task11(req, res){
+  const isbn = req.params.isbn;
+  let response = await books[isbn];
+    if (response.err) { console.log('error');}
+    else { res.send(response);}
+}
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  const isbn = req.params.isbn;
-  res.send(books[isbn]);
- });
-  
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
+public_users.get('/isbn/:isbn',task11);
+
+async function task12(req, res){
   const author = req.params.author;
   const keys = Object.keys(books)
+
   for(let i =0; i<keys.length;i++){
     if( (books[parseInt(keys[i])].author) == author){
-      res.send(books[parseInt(keys[i])])
+    response = await books[parseInt(keys[i])]
     }
   }
-  res.send("No book with such author name")
-});
+    if (response.err) { console.log('error');}
+    else { res.send(response);}
+}
+  
+// Get book details based on author
+public_users.get('/author/:author',task12);
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
+async function task13(req, res){
   const title = req.params.title;
   const keys = Object.keys(books)
+
   for(let i =0; i<keys.length;i++){
     if( (books[parseInt(keys[i])].title) == title){
-      res.send(books[parseInt(keys[i])])
+    response = await books[parseInt(keys[i])]
     }
   }
-  res.send("No book with such title name")
-});
+    if (response.err) { console.log('error');}
+    else { res.send(response);}
+}
+  
+
+
+// Get all books based on title
+public_users.get('/title/:title',task13);
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
